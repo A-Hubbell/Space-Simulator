@@ -101,6 +101,8 @@ public class State {
 		this.vy = s.getVy();
 		this.ax = s.getAx();
 		this.ay = s.getAy();
+		this.fx = s.getFx();
+		this.fy = s.getFy();
 	}
 
 	//Accessor and modifier methods
@@ -157,16 +159,16 @@ public class State {
 	 */	
 	public String toString () {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Mass: " + this.mass + "  ");
-		sb.append("Radius: " + this.radius + "  ");
-		sb.append("Position: [");
-		sb.append(this.x + ", " + this.y + "]  ");
-		sb.append("Velocity: [");
-		sb.append(this.vx + ", " + this.vy + "]  ");
-		sb.append("Acceleration: [");
-		sb.append(this.ax + ", " + this.ay + "]  ");
-		sb.append("Net Force: [");
-		sb.append(this.fx + ", " + this.fy + "]  ");
+		sb.append("mass:" + this.mass);
+		sb.append("radius:" + this.radius);
+		sb.append("xPos:" + this.x);
+		sb.append("yPos:" + this.y);
+		sb.append("xVel:" + this.vx);
+		sb.append("yVel:" + this.vy);
+		sb.append("xAccel:" + this.ax);
+		sb.append("yAccel:" + this.ay);
+		sb.append("xNetForce:" + this.fx);
+		sb.append("yNetForce:" + this.fy);
 		
 		return sb.toString();
 	}

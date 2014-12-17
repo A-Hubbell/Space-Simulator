@@ -19,6 +19,11 @@
  */ 
 public class SpaceCalc {
 	
+	public static final double FORCE_LOWER_BOUND = 1.0e-12;
+	
+	//SpaceCalc is not designed to be instantiated, so constructor is private
+	private SpaceCalc () {}
+	
 	/**
 	 *  Updates the acceleration of SpaceObject "s", using Newton's Second Law, 
 	 *  F = m*a, to calculate the new acceleration of "s" given a certain mass
@@ -36,11 +41,12 @@ public class SpaceCalc {
 	 * @see        {@link Universe#updateNetForces()}
 	 */
 	public static State updateAcceleration (State s) {
+
 		s.setAx(s.getFx()/s.getMass());
 		s.setAy(s.getAy()/s.getMass());
 		
 		State newState = new State(s);
-		
+
 		return newState;
 	}
 	
@@ -65,6 +71,7 @@ public class SpaceCalc {
 	 * @see    	   #updateAcceleration(State)
 	 */
 	public static State updateVelocity (State s, double dt) {
+
 		// Vf = Vi + a*t
 		double newVx = s.getVx() + s.getAx()*dt;
 		double newVy = s.getVy() + s.getAy()*dt;
@@ -74,7 +81,7 @@ public class SpaceCalc {
 		s.setVy(newVy);
 		
 		State newState = new State(s);
-		
+
 		return newState;
 	}
 	
@@ -104,8 +111,8 @@ public class SpaceCalc {
 		double newY = s.getVy()*dt + 0.5*s.getAy()*(dt*dt);
 		
 		//Set the new position values of state "s"
-		s.setX(newX);
-		s.setY(newY);
+		s.setX(newX + s.getX());
+		s.setY(newY + s.getY());
 		
 		State newState = new State(s);
 		
@@ -132,7 +139,10 @@ public class SpaceCalc {
 		
 		//Standard F = Gmm/r^2
 		double gravForce = (Universe.GRAV_CONST*s1.getMass()*s2.getMass())/(r*r);
-		
+		if (gravForce < FORCE_LOWER_BOUND) {
+			double[] zeros = {0.0, 0.0};
+			return zeros;
+		}
 		//Multiply unit vector by magnitude of gravitational force
 		vector[0] = vector[0]*gravForce;
 		vector[1] = vector[1]*gravForce;

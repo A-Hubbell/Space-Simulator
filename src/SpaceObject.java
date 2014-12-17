@@ -21,6 +21,22 @@ public abstract class SpaceObject {
 	/** State of the SpaceObject, storing mass, radius, position, velocity, acceleration, and net force */
 	private State state;
 	
+
+	/**
+	 * Initialize a new SpaceObject with default name "Name not specified", 
+	 * and state using default State() constructor.
+	 */
+	public SpaceObject() {
+		this.name = "Name not specified";
+		this.state = new State();
+	}
+	
+
+	public SpaceObject (State s) {
+		this.name = "Name not specified";
+		this.state = s;
+	}
+	
 	/**
 	 * Initialize a new SpaceObject with name "n" and state "s"
 	 * 
@@ -32,14 +48,8 @@ public abstract class SpaceObject {
 		this.state = s;
 	}
 	
-	/**
-	 * Initialize a new SpaceObject with default name "Name not specified", 
-	 * and state using default State() constructor.
-	 */
-	public SpaceObject() {
-		this.name = "Name not specified";
-		this.state = new State();
-	}
+	
+	
 
 	/**
 	 * Copy constructor: initialize a new SpaceObject that is a deep copy 
@@ -73,10 +83,10 @@ public abstract class SpaceObject {
 	 * @see    	 {@link SpaceCalc#updateAcceleration(State)}, {@link SpaceCalc#updateVelocity(State, double)}, {@link SpaceCalc#updatePosition(State, double)}
 	 */
 	protected State nextState () {
-		SpaceCalc.updateAcceleration(this.state);
-		SpaceCalc.updateVelocity(this.state, Universe.TIME_STEP);
-		SpaceCalc.updatePosition(this.state, Universe.TIME_STEP);
-		
+		this.state = SpaceCalc.updateAcceleration(this.state);
+		this.state = SpaceCalc.updateVelocity(this.state, Universe.TIME_STEP);
+		this.state = SpaceCalc.updatePosition(this.state, Universe.TIME_STEP);
+
 		return this.getState();
 	}
 	
@@ -127,10 +137,12 @@ public abstract class SpaceObject {
 	 * @return	   true if objects overlapped and are now merged, false otherwise
 	 * @see        {@link #mergeSpaceObjects(SpaceObject)}
 	 */
-	protected boolean verifyOverlap (SpaceObject s) { 
+	protected boolean verifyOverlap (SpaceObject s) throws IllegalArgumentException { 
+		if (s == null)
+			throw new IllegalArgumentException();
 		//Find difference between x, y coordinates of SpaceObjects
-		double dx = this.getState().getX() - s.getState().getX();
-		double dy = this.getState().getY() - s.getState().getY();
+		double dx = this.state.getX() - s.getState().getX();
+		double dy = this.state.getY() - s.getState().getY();
 		
 		//Calculate distance between two SpaceObjects
 		double r = Math.sqrt(dx*dx + dy*dy);
@@ -171,11 +183,8 @@ public abstract class SpaceObject {
 	 */
 	public String toString () {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Name: ");
-		sb.append(this.name);
-		sb.append("  State :");
+		sb.append("name:" + this.name);
 		sb.append(this.state);
-
 		
 		return sb.toString();
 	}

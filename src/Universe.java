@@ -8,6 +8,8 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.JFrame;
+
 /**
  * This class contains all entities (SpaceObject, etc.) that exist in the universe.
  * It is the main class for handling interactions between entities, such as
@@ -24,23 +26,22 @@ import java.util.Iterator;
  * @version 0.1
  */ 
 public class Universe {
-
-	//Universe characteristics
-	public static final double X_DIM = 100;
-	public static final double Y_DIM = 100;
-	public static final double DEFAULT_VELOCITY_FACTOR = 20;
-	public static final double DEFAULT_ACCELERATION_FACTOR = 5;
-	public static final double DEFAULT_MASS = 10;     //Mass of the Earth = 5.972e24 kg
-	public static final double DEFAULT_DENSITY = 5520;    //Average density of the Earth = 5520 kg/m^3
-	public static final double DEFAULT_RADIUS = Math.pow((3*DEFAULT_MASS)/(4*Math.PI*DEFAULT_DENSITY), 1.0/3);
-	public static final double DEFAULT_FORCE_FACTOR = 1e5;
-	public static final double GRAV_CONST = 2e3;
-	public static final double TIME_STEP = 0.1;
 	
+	//Universe characteristics
+	public static final double X_DIM = 100.0;
+	public static final double Y_DIM = 100.0;
+	public static final double DEFAULT_VELOCITY_FACTOR = 20.0;
+	public static final double DEFAULT_ACCELERATION_FACTOR = 5.0;
+	public static final double DEFAULT_MASS = 1000.0;     //Mass of the Earth = 5.972e24 kg
+	public static final double DEFAULT_DENSITY = 1.0;    //Average density of the Earth = 5520 kg/m^3
+	public static final double DEFAULT_RADIUS = Math.pow((3*DEFAULT_MASS)/(4*Math.PI*DEFAULT_DENSITY), 1.0/3.0);
+	public static final double DEFAULT_FORCE_FACTOR = 1.0e5;
+	public static final double GRAV_CONST = 6.67384e-11;
+	public static final double TIME_STEP = 10.0;
+
 	/** Store all Planet objects existing in the universe */
 	private ArrayList<Planet> planets;
 
-	
 	/**
 	 * Initialize a new Universe with an ArrayList of planets "a".
 	 * 
@@ -49,14 +50,14 @@ public class Universe {
 	public Universe (ArrayList<Planet> a) {
 		this.planets = a;
 	}
-	
+
 	/**
 	 * Initialize a new Universe with an empty ArrayList "planets".
 	 */
 	public Universe () {
 		this.planets = new ArrayList<>();
 	}
-	
+
 	/**
 	 * Copy constructor: initialize a new Universe that is a deep copy of 
 	 * Universe "u".
@@ -66,14 +67,14 @@ public class Universe {
 	public Universe (Universe u) {
 		ArrayList<Planet> newList = new ArrayList<>();
 		Iterator<Planet> it = u.getPlanets().iterator();
-		
+
 		while(it.hasNext())
 			newList.add(it.next());
-		
+
 		this.planets = newList;
 	}
-	
-	
+
+
 	/** 
 	 * Updates the universe by first updating all of the net forces acting on all
 	 * entities using updateNetForces(), then moving the simulation one time step
@@ -87,9 +88,10 @@ public class Universe {
 	public void update () {
 		this.updateNetForces();
 		this.updateStates();
+		//this.visualize();
 	}
-	
-	
+
+
 	/** 
 	 * Adds a new Planet object to the ArrayList "planets", effectively introducing
 	 * a new planet into the universe. This method uses the "add()" method that is
@@ -100,13 +102,28 @@ public class Universe {
 	public void addPlanet (Planet p) {
 		this.planets.add(p);
 	}
-	
-	
+
+	/**
+	 * Creates a deep copy of the ArrayList "planets", and returns an iterator
+	 * over those elements.
+	 * 
+	 * @return		returns a deep copy iterator over the elements in "planets"
+	 */
+	public Iterator<Planet> planetsIterator() {
+		ArrayList<Planet> tempList = new ArrayList<>();
+		for (Planet p : this.planets) {
+			Planet temp = new Planet(p);
+			tempList.add(temp);
+		}
+
+		return tempList.iterator();
+	}
+
 	//Accessor and modifier methods
 	public ArrayList<Planet> getPlanets () { return planets; }
 	public void setPlanets (ArrayList<Planet> p) { this.planets = p; }
-	
-	
+
+
 	/** 
 	 * Update the net force state attribute of every entity in the universe by
 	 * calculating the gravitational force acting on each entity due to every
@@ -116,18 +133,22 @@ public class Universe {
 		//TODO: Logic testing
 		for (Planet p1 : planets) {
 			double[] vector = {p1.getState().getFx(), p1.getState().getFy()};
+			
 			for (Planet p2 : planets) {
 				if (p1.equals(p2)) 
 					continue;
 				//Calculate the gravitational force acting on "p1" due to "p2"
 				//Add the force vector to the current net force vector of "p1"
-				vector[0] += SpaceCalc.calcGravForce(p1.getState(), p2.getState())[0];
-				vector[1] += SpaceCalc.calcGravForce(p1.getState(), p2.getState())[1];
+				//vector[0] += SpaceCalc.calcGravForce(p1.getState(), p2.getState())[0];
+				//vector[1] += SpaceCalc.calcGravForce(p1.getState(), p2.getState())[1];
 
+				//TODO: Debugging testing only
+				vector[0] = SpaceCalc.calcGravForce(p1.getState(), p2.getState())[0];
+				vector[1] = SpaceCalc.calcGravForce(p1.getState(), p2.getState())[1];
 			}
 			//Create a new State object that is a copy of p1's current state
 			State newState = new State(p1.getState());
-			
+
 			//Set the net force attributes of newState to the new net force for p1
 			newState.setFx(vector[0]);
 			newState.setFy(vector[1]);
@@ -136,8 +157,8 @@ public class Universe {
 			p1.setState(newState);
 		}
 	}
-	
-	
+
+
 	/** 
 	 * Update the acceleration, velocity, and position state attributes of every
 	 * entity in the universe by calling the nextState() method on every entity.
@@ -153,15 +174,38 @@ public class Universe {
 		for (Planet p1 : this.planets) {
 			p1.nextState(); 
 		}
-		
+
 		//Check if any planets need to be merged, if so merge them
-		for (int i=0; i<this.planets.size()-2; i++) {
-			for (int j=i+1; j<this.planets.size()-1; j++) {
-				//TODO: Logic testing
-				this.planets.get(i).verifyOverlap(this.planets.get(j));
+		if (this.planets.size() > 1) {
+			for (int i=0; i<this.planets.size()-2; i++) {
+				for (int j=i+1; j<this.planets.size()-1; j++) {
+					//TODO: Logic testing
+					if (this.planets.get(i).verifyOverlap(this.planets.get(j))) {
+						Planet p1 = new Planet(this.planets.get(i));
+						Planet p2 = new Planet(this.planets.get(j));
+						p1.verifyOverlap(p2);
+						this.planets.set(i, p1);
+						this.planets.set(i, p2);
+					}
+					
+				}
 			}
 		}
 	}
+
+	public void visualize () {
+		Visualizer v = new Visualizer(this);
+		v.frame.setResizable(false);
+		v.frame.setTitle("Space-Simulator");
+		v.frame.add(v);
+		v.frame.pack();
+		v.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		v.frame.setLocationRelativeTo(null);
+		v.frame.setVisible(true);
+
+		v.start();
+	}
+
 
 	/**
 	 * Check if two Universe objects are equal. Two Universe objects are considered
@@ -175,15 +219,15 @@ public class Universe {
 		boolean flag = true;
 		ArrayList<Planet> thisPlanets = this.getPlanets();
 		ArrayList<Planet> otherPlanets = u.getPlanets();
-		
+
 		for (int i=0; i<this.planets.size(); i++) {
 			if (!(thisPlanets.get(i).equals(otherPlanets.get(i))))
 				flag = false;
 		}
-		
+
 		return flag;
 	}
-	
+
 	/**
 	 * Generate and return a string that is representative of the calling Universe
 	 * object. This is done by iterating through "planets" and invoking the toString()
@@ -196,9 +240,9 @@ public class Universe {
 		Iterator<Planet> it = planets.iterator();
 		while (it.hasNext())
 			sb.append(it.next());
-		
+
 		return it.toString();
 	}
-	
+
 
 }

@@ -24,9 +24,14 @@ public class Planet extends SpaceObject {
 	 */
 	public Planet() {
 		super();
+		moons = new Moon[10];
 	}
 	
-	public Planet(String n, State s, double m, double r, double[] f) {
+	public Planet (State s) {
+		super(s);
+	}
+	
+	public Planet(String n, State s) {
 		super(n, s);
 	}
 	
