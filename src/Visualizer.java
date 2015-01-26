@@ -26,6 +26,7 @@ public class Visualizer extends Canvas implements Runnable {
 	private boolean running = false;
 	private Thread thread;
 	private Screen screen;
+	
 	//Create image
 	private BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
@@ -80,7 +81,15 @@ public class Visualizer extends Canvas implements Runnable {
 	
 	//This will be restricted to run at 60 FPS
 	public void update () {
-		 
+		//NOTE: This delay was introduced to aid in visually verifying the graphics, it is not inherent to the simulation 
+		/*
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
 	}
 	
 	//This will run as fast as the host computer will allow

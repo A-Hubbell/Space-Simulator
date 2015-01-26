@@ -19,6 +19,8 @@
  */ 
 public class SpaceCalc {
 	
+	//TODO: Change lower bound in terms of resulting acceleration, so the simulation 
+	//      is still valid for very small masses.
 	public static final double FORCE_LOWER_BOUND = 1.0e-12;
 	
 	//SpaceCalc is not designed to be instantiated, so constructor is private
@@ -106,13 +108,13 @@ public class SpaceCalc {
 	 * @see        SpaceCalc#updateVelocity(State, double)
 	 */
 	public static State updatePosition (State s, double dt) {
-		// x = v*t + (1/2)*a*t^2
-		double newX = s.getVx()*dt + 0.5*s.getAx()*(dt*dt);
-		double newY = s.getVy()*dt + 0.5*s.getAy()*(dt*dt);
+		// xf = xi + v*t + (1/2)*a*t^2
+		double newX = s.getX() + s.getVx()*dt + 0.5*s.getAx()*(dt*dt);
+		double newY = s.getY() + s.getVy()*dt + 0.5*s.getAy()*(dt*dt);
 		
 		//Set the new position values of state "s"
-		s.setX(newX + s.getX());
-		s.setY(newY + s.getY());
+		s.setX(newX);
+		s.setY(newY);
 		
 		State newState = new State(s);
 		

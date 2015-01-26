@@ -32,12 +32,12 @@ public class Universe {
 	public static final double Y_DIM = 100.0;
 	public static final double DEFAULT_VELOCITY_FACTOR = 20.0;
 	public static final double DEFAULT_ACCELERATION_FACTOR = 5.0;
-	public static final double DEFAULT_MASS = 1000.0;     //Mass of the Earth = 5.972e24 kg
+	public static final double DEFAULT_MASS = 10000.0;     //Mass of the Earth = 5.972e24 kg
 	public static final double DEFAULT_DENSITY = 1.0;    //Average density of the Earth = 5520 kg/m^3
 	public static final double DEFAULT_RADIUS = Math.pow((3*DEFAULT_MASS)/(4*Math.PI*DEFAULT_DENSITY), 1.0/3.0);
 	public static final double DEFAULT_FORCE_FACTOR = 1.0e5;
 	public static final double GRAV_CONST = 6.67384e-11;
-	public static final double TIME_STEP = 10.0;
+	public static final double TIME_STEP = 0.0001;
 
 	/** Store all Planet objects existing in the universe */
 	private ArrayList<Planet> planets;
@@ -132,26 +132,26 @@ public class Universe {
 	private void updateNetForces () {
 		//TODO: Logic testing
 		for (Planet p1 : planets) {
-			double[] vector = {p1.getState().getFx(), p1.getState().getFy()};
+			double[] forceVector = {p1.getState().getFx(), p1.getState().getFy()};
 			
 			for (Planet p2 : planets) {
 				if (p1.equals(p2)) 
 					continue;
 				//Calculate the gravitational force acting on "p1" due to "p2"
 				//Add the force vector to the current net force vector of "p1"
-				//vector[0] += SpaceCalc.calcGravForce(p1.getState(), p2.getState())[0];
-				//vector[1] += SpaceCalc.calcGravForce(p1.getState(), p2.getState())[1];
+				forceVector[0] += SpaceCalc.calcGravForce(p1.getState(), p2.getState())[0];
+				forceVector[1] += SpaceCalc.calcGravForce(p1.getState(), p2.getState())[1];
 
 				//TODO: Debugging testing only
-				vector[0] = SpaceCalc.calcGravForce(p1.getState(), p2.getState())[0];
-				vector[1] = SpaceCalc.calcGravForce(p1.getState(), p2.getState())[1];
+				//forceVector[0] = SpaceCalc.calcGravForce(p1.getState(), p2.getState())[0];
+				//forceVector[1] = SpaceCalc.calcGravForce(p1.getState(), p2.getState())[1];
 			}
 			//Create a new State object that is a copy of p1's current state
 			State newState = new State(p1.getState());
 
 			//Set the net force attributes of newState to the new net force for p1
-			newState.setFx(vector[0]);
-			newState.setFy(vector[1]);
+			newState.setFx(forceVector[0]);
+			newState.setFy(forceVector[1]);
 			
 			//Set p1's "state" to newState
 			p1.setState(newState);
@@ -195,7 +195,7 @@ public class Universe {
 
 	public void visualize () {
 		Visualizer v = new Visualizer(this);
-		v.frame.setResizable(false);
+		v.frame.setResizable(false); //Important to set this to "false" immediately 
 		v.frame.setTitle("Space-Simulator");
 		v.frame.add(v);
 		v.frame.pack();

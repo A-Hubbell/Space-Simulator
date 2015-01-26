@@ -27,10 +27,12 @@ public class Screen {
 		//TODO: call u.update() and modifiy the pixels array using the positions of SpaceObjects
 		
 		//Change "pixels" here
-		int count = 0;
-		for (int i=0; i<2000; i++) {
-			pixels[i+count*2] = 0xffffff;
-			count++;
+		
+		Iterator<Planet> it = u.planetsIterator();
+		
+		while(it.hasNext()) {
+			Planet p = it.next();
+			pixels[(int) (p.getState().getX() + this.width*p.getState().getY())] = 0xffffff;
 		}
 	}
 	
